@@ -1,0 +1,111 @@
+#include <Arduino.h>
+#include "../include/jeux/memoire.h"
+#include "../include/jeux/corps_humain.h"
+#include "../include/jeux/assistant.h"
+
+// Boutons configuration (same as memoire.cpp)
+#define RESOLUTION 10
+#define MAXVALUE (1 << RESOLUTION)
+#define PRECISION 10
+#define ADPIN A0
+
+uint32_t ADKeyVal[10] = {0};
+uint32_t ADCKeyIn = 0;
+
+// Game state
+enum GameState {
+  MENU,
+  GAME_MEMOIRE,
+  GAME_CORPS_HUMAIN,
+  GAME_ASSISTANT
+};
+
+GameState currentGame = GAME_ASSISTANT;
+bool gameInitialized = false;
+
+// Forward declaration
+void switchToCorpsHumain();
+void switchToAssistant();
+void switchToMemoire();
+
+void setup() {
+  Serial.begin(115200);
+  delay(2000); // Délai pour laisser le temps au moniteur série de se connecter
+  
+  Serial.println("=== LudiCube - Test Assistant ===");
+  Serial.println("Jeu 1: Mémoire");
+  Serial.println("Jeu 2: Corps Humain");
+  Serial.println("Jeu 3: Assistant");
+  Serial.println("================================");
+  delay(1000);
+  
+  // Initialize Assistant game
+  Serial.println("\n=== Démarrage de l'Assistant ===");
+  Assistant::begin();
+  gameInitialized = true;
+}
+
+void loop() {
+  if (!gameInitialized) return;
+  
+  switch (currentGame) {
+    case GAME_MEMOIRE:
+      Memoire::step();
+      // Check if Memoire game is completed
+      if (Memoire::isCompleted()) {
+        switchToCorpsHumain();
+      }
+      break;
+      
+    case GAME_CORPS_HUMAIN:
+      CorpsHumain::step();
+      // Check if Corps Humain game is completed
+      if (CorpsHumain::isCompleted()) {
+        switchToAssistant();
+      }
+      break;
+    case GAME_ASSISTANT:
+      Assistant::step();    
+      break;
+
+    default:
+      Serial.println("Erreur: État de jeu inconnu!");
+      break;
+  }
+}
+
+// Function to switch from Memoire to Corps Humain
+void switchToCorpsHumain() {
+  if (currentGame == GAME_MEMOIRE) {
+    Serial.println("\n=== Changement de jeu ===");
+    Serial.println("Jeu Mémoire terminé!");
+    delay(2000);
+    Serial.println("=== Démarrage du jeu Corps Humain ===");
+    currentGame = GAME_CORPS_HUMAIN;
+    CorpsHumain::begin();
+  }
+}
+
+// Function to switch from Corps Humain to Assistant
+void switchToAssistant() {
+  if (currentGame == GAME_CORPS_HUMAIN) {
+    Serial.println("\n=== Changement de jeu ===");
+    Serial.println("Jeu Corps Humain terminé!");
+    delay(2000);
+    Serial.println("=== Démarrage de l'Assistant ===");
+    currentGame = GAME_ASSISTANT;
+    Assistant::begin();
+  }
+}
+
+// Function to switch from Assistant to Memoire
+void switchToMemoire() {
+  if (currentGame == GAME_ASSISTANT) {
+    Serial.println("\n=== Changement de jeu ===");
+    Serial.println("Jeu Assistant terminé!");
+    delay(2000);
+    Serial.println("=== Démarrage du jeu Mémoire ===");
+    currentGame = GAME_MEMOIRE;
+    Memoire::begin();
+  }
+}
