@@ -34,12 +34,12 @@ void setup() {
   
   Serial.println();
   Serial.println("=================================");
-  Serial.println("===   LudiCube - Demarrage    ===");
+  Serial.println("===   LudiCube - Démarrage    ===");
   Serial.println("=================================");
   
   // Initialize button reading
   ADKeybegin();
-  Serial.println("Boutons initialises");
+  Serial.println("Boutons initialisés");
   
   displayMenu();
   gameInitialized = true;
@@ -61,7 +61,7 @@ void loop() {
       delay(500);
     }
     else if (key == 1) {  // Button 2 -> Memoire
-      Serial.println("\n>>> SELECTION: Memoire <<<");
+      Serial.println("\n>>> SELECTION: Mémoire <<<");
       currentGame = GAME_MEMOIRE;
       Memoire::begin();
       delay(500);
@@ -80,7 +80,7 @@ void loop() {
     case GAME_MEMOIRE:
       Memoire::step();
       if (Memoire::isCompleted()) {
-        Serial.println("\n=== Jeu termine ===");
+        Serial.println("\n=== Jeu terminé ===");
         delay(2000);
         currentGame = MENU;
         displayMenu();
@@ -90,7 +90,7 @@ void loop() {
     case GAME_CORPS_HUMAIN:
       CorpsHumain::step();
       if (CorpsHumain::isCompleted()) {
-        Serial.println("\n=== Jeu termine ===");
+        Serial.println("\n=== Jeu terminé ===");
         delay(2000);
         currentGame = MENU;
         displayMenu();
@@ -117,7 +117,7 @@ void displayMenu() {
   Serial.println("    MENU - Choisissez un jeu    ");
   Serial.println("================================");
   Serial.println("  Bouton 1 (1) -> Assistant");
-  Serial.println("  Bouton 2 (2) -> Jeu Memoire");
+  Serial.println("  Bouton 2 (2) -> Jeu Mémoire");
   Serial.println("  Bouton 3 (3) -> Corps Humain");
   Serial.println("================================");
   Serial.println("En attente...");
