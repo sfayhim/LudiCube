@@ -12,7 +12,7 @@
 namespace Memoire {
 
 // === LEDs ===
-int leds[] = {A1, A2, A3, A4, 6, 7, A5};
+int leds[] = {A2, A3, A4, A5};
 int ledCount = sizeof(leds) / sizeof(leds[0]);
 
 // === Boutons ===
@@ -20,7 +20,7 @@ uint32_t ADKeyVal[10] = {0};
 uint32_t ADCKeyIn = 0;
 
 // Pattern de jeu
-const int PATTERN_LENGTH = 5;   // longueur du pattern aléatoire
+const int PATTERN_LENGTH = 4;   // longueur du pattern aléatoire
 const int ROUNDS_TO_WIN = 1;     // nombre de rounds pour terminer
 int pattern[PATTERN_LENGTH] = {0};
 int playerIndex = 0;
@@ -89,7 +89,7 @@ void step() {
     return;  // Ne rien faire tant qu'un bouton est encore enfoncé
   }
 
-  if (key >= 0 && key < 7) { // Ignorer touches > 7
+  if (key == 1 || key == 4 || key == 7 || key == 9) { // Ignorer touches > 7
     Serial.print("Touche appuyée : "); Serial.println(key + 1);
 
     lightLed(key, 200); // feedback LED
