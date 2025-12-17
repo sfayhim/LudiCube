@@ -3,19 +3,30 @@
 #include "../include/jeux/corps_humain.h"
 #include "../include/jeux/assistant.h"
 
-
-// Boutons configuration
+// ================= CONFIGURATION =================
 #define RESOLUTION 10
 #define MAXVALUE (1 << RESOLUTION)
 #define PRECISION 10
 #define ADPIN A0
-#define BUTTON_8_PIN 8  // Bouton dédié à l'assistant
-#define BUTTON_2_PIN 2 // Bouton dédié au corps humain
 
+// Boutons
+const int boutonPin = 8;           // POWER / Assistant
+#define BUTTON_2_PIN 3             // Poumons / Corps Humain
+
+const unsigned long TEMPS_APPUI_LONG = 2000; // 2 secondes
+
+// ================= ETAT SYSTEME =================
+bool systemeAllume = true;
+bool gameInitialized = false;
+
+bool etatBoutonPrecedent = HIGH;
+unsigned long tempsDebutAppui = 0;
+
+// ================= ADC BUTTONS =================
 uint32_t ADKeyVal[10] = {0};
 uint32_t ADCKeyIn = 0;
 
-// Game state
+// ================= GAME STATE =================
 enum GameState {
   MENU,
   GAME_MEMOIRE,
@@ -24,71 +35,108 @@ enum GameState {
 };
 
 GameState currentGame = MENU;
-bool gameInitialized = false;
 
-// Forward declarations
+// ================= DECLARATIONS =================
 void ADKeybegin();
 int8_t getKey();
 void displayMenu();
 
+// ================= SETUP =================
 void setup() {
   Serial.begin(115200);
   delay(3000);
-  
+
+  pinMode(boutonPin, INPUT_PULLUP);
+  pinMode(BUTTON_2_PIN, INPUT_PULLUP);
+
   Serial.println();
   Serial.println("=================================");
   Serial.println("===   LudiCube - Démarrage    ===");
   Serial.println("=================================");
-  
-  // Initialisation boutons
+
   ADKeybegin();
-  pinMode(BUTTON_8_PIN, INPUT_PULLUP); // Assistant
-  pinMode(BUTTON_2_PIN, INPUT_PULLUP); // Corps Humain
-  // Les autres boutons sont initialisés dans leurs modules respectifs
   Serial.println("Boutons initialisés");
 
   displayMenu();
   gameInitialized = true;
 }
 
+// ================= LOOP =================
 void loop() {
   if (!gameInitialized) return;
-  
-  // Lecture boutons
+
+  // ===== Bouton pin 8 : appui court / long =====
+  bool etatBouton = digitalRead(boutonPin);
+
+  if (etatBoutonPrecedent == HIGH && etatBouton == LOW) {
+    tempsDebutAppui = millis();
+  }
+
+  if (etatBoutonPrecedent == LOW && etatBouton == HIGH) {
+    unsigned long duree = millis() - tempsDebutAppui;
+
+    if (duree >= TEMPS_APPUI_LONG) {
+      systemeAllume = !systemeAllume;
+
+      Serial.println();
+      Serial.println("=================================");
+      Serial.print("=== CUBE ");
+      Serial.print(systemeAllume ? "ALLUME" : "ETEINT");
+      Serial.println(" ===");
+      Serial.println("=================================");
+
+      if (systemeAllume) {
+        currentGame = MENU;
+        displayMenu();
+      }
+
+      etatBoutonPrecedent = etatBouton;
+      delay(300);
+      return;
+    }
+  }
+
+  etatBoutonPrecedent = etatBouton;
+
+  if (!systemeAllume) return;
+
+  // ===== Lecture ADC =====
   ADCKeyIn = analogRead(ADPIN);
   int8_t key = getKey();
 
-  // Menu : attendre sélection jeu
+  // ================= MENU =================
   if (currentGame == MENU) {
-    // Assistant : bouton pin 8
-    if (digitalRead(BUTTON_8_PIN) == LOW) {
+
+    // Assistant (appui court pin 8)
+    if (etatBouton == LOW && (millis() - tempsDebutAppui) < TEMPS_APPUI_LONG) {
       Serial.println("\n>>> SELECTION: Assistant <<<");
       currentGame = GAME_ASSISTANT;
       Assistant::begin();
       delay(500);
-      return;
     }
-    // Mémoire : bouton 0 du pavé (A0)
-    if (key == 0) {
+
+    // Mémoire (ADC)
+    else if (key == 0) {
       Serial.println("\n>>> SELECTION: Mémoire <<<");
       currentGame = GAME_MEMOIRE;
       Memoire::begin();
       delay(500);
-      return;
     }
-    // Corps humain : bouton du coeur (BUTTON_1_PIN)
-    if (digitalRead(BUTTON_8_PIN) == LOW) { // 2 = BUTTON_1_PIN
+
+    // Corps Humain (bouton pin 3)
+    else if (digitalRead(BUTTON_2_PIN) == LOW) {
       Serial.println("\n>>> SELECTION: Corps Humain <<<");
       currentGame = GAME_CORPS_HUMAIN;
       CorpsHumain::begin();
       delay(500);
-      return;
     }
+
     return;
   }
-  
-  // Game mode
+
+  // ================= JEUX =================
   switch (currentGame) {
+
     case GAME_MEMOIRE:
       Memoire::step();
       if (Memoire::isCompleted()) {
@@ -98,7 +146,7 @@ void loop() {
         displayMenu();
       }
       break;
-      
+
     case GAME_CORPS_HUMAIN:
       CorpsHumain::step();
       if (CorpsHumain::isCompleted()) {
@@ -124,18 +172,19 @@ void loop() {
   }
 }
 
+// ================= MENU =================
 void displayMenu() {
   Serial.println("\n================================");
   Serial.println("    MENU - Choisissez un jeu    ");
   Serial.println("================================");
-  Serial.println("  Assistant");
-  Serial.println("  Jeu Mémoire");
-  Serial.println("  Corps Humain");
+  Serial.println("  Bouton pin 8  -> Assistant");
+  Serial.println("  ADC           -> Jeu Mémoire");
+  Serial.println("  Bouton pin 3  -> Corps Humain");
   Serial.println("================================");
   Serial.println("En attente...");
 }
 
-// Button reading functions
+// ================= ADC =================
 void ADKeybegin() {
   float RESValue[10] = {0, 3, 6.2, 9.1, 15, 24, 33, 51, 100, 220};
   for (uint8_t i = 0; i < 10; i++) {
