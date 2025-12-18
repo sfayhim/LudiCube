@@ -55,7 +55,7 @@ void begin() {
   SPI.begin();
   mfrc522.PCD_Init();
   
-  Serial.println("\n=== Assistant Ludique ===");
+  Serial.println("\n=== Bonjour Je suis Imane Votre assistante ===");
   Serial.println("Lecteur RFID prêt !");
   Serial.println("Scannez un badge pour choisir un thème :");
   Serial.println("  - Badge Yasmina = Thème SANTÉ");

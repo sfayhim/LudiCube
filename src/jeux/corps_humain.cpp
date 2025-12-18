@@ -146,9 +146,9 @@ static bool lastModeEasy = true;
 if (!modeShown || lastModeEasy != isEasy) {
   Serial.println("MSG_DEBUT");
   if (isEasy) {
-    Serial.println("MSG_MODE_FACILE");
+    Serial.println("MODE_FACILE");
   } else {
-    Serial.println("MSG_MODE_DIFFICILE");
+    Serial.println("MODE_DIFFICILE");
   }
   modeShown = true;
   lastModeEasy = isEasy;
@@ -167,10 +167,10 @@ buttonState3 = digitalRead(BUTTON_3_PIN);
 
 buttonState4 = digitalRead(BUTTON_4_PIN);
 
-if (buttonState1 == LOW) { Serial.println("MSG_COEUR"); delay(500); }
-if (buttonState2 == LOW) { Serial.println("MSG_POUMONS"); delay(500); }
-if (buttonState3 == LOW) { Serial.println("MSG_FOIE"); delay(500); }
-if (buttonState4 == LOW) { Serial.println("MSG_REIN"); delay(500); }
+if (buttonState1 == LOW) { Serial.println("Les Intestins"); delay(500); }
+if (buttonState2 == LOW) { Serial.println("Le Coeur"); delay(500); }
+if (buttonState3 == LOW) { Serial.println("Le Cerveau"); delay(500); }
+if (buttonState4 == LOW) { Serial.println("Les Poumons"); delay(500); }
 
 delay(100);
 return;
@@ -195,10 +195,10 @@ asked[targetOrgan - 1] = true;
 askedCount++;
 
 // send organ to find
-if (targetOrgan == 1) Serial.println("MSG_COEUR");
-if (targetOrgan == 2) Serial.println("MSG_POUMONS");
-if (targetOrgan == 3) Serial.println("MSG_FOIE");
-if (targetOrgan == 4) Serial.println("MSG_REIN");
+if (targetOrgan == 1) Serial.println("Les INTESTINS");
+if (targetOrgan == 2) Serial.println("Le Coeur");
+if (targetOrgan == 3) Serial.println("Le Cerveau");
+if (targetOrgan == 4) Serial.println("Les Poumons");
 
 // wait for button press
 bool answered = false;
