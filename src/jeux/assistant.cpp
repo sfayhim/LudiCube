@@ -19,16 +19,16 @@ static unsigned long lastBadgeTime = 0;
 #define UID_ALEX "6590FB75"      // Thème Sport
 
 // --- Phrases par thème (stockées en PROGMEM pour économiser la RAM) ---
-const char sante0[] PROGMEM = "Buvez 1,5L d'eau par jour.";
-const char sante1[] PROGMEM = "Dormez 7-9h chaque nuit.";
-const char sante2[] PROGMEM = "Mangez 5 fruits/legumes.";
+const char sante0[] PROGMEM = "Buvé une litre d'eau par jour.";
+const char sante1[] PROGMEM = "Dormé entre 7 et 9 heures chaque nuit.";
+const char sante2[] PROGMEM = "Mangé 5 fruits.";
 
 const char* const santeList[] PROGMEM = {sante0, sante1, sante2};
 const int nbSante = 3;
 
-const char sport0[] PROGMEM = "Football: 11 joueurs.";
-const char sport1[] PROGMEM = "Natation renforce muscles.";
-const char sport2[] PROGMEM = "Basketball invente en 1891.";
+const char sport0[] PROGMEM = "l'équipe de Football contient 11 joueurs.";
+const char sport1[] PROGMEM = "la Natation renforce les muscles.";
+const char sport2[] PROGMEM = "le Basketball a été inventé en 1891.";
 
 const char* const sportList[] PROGMEM = {sport0, sport1, sport2};
 const int nbSport = 3;
@@ -56,10 +56,8 @@ void begin() {
   mfrc522.PCD_Init();
   
   Serial.println("\n=== Bonjour Je suis Imane Votre assistante ===");
-  Serial.println("Lecteur RFID prêt !");
   Serial.println("Scannez un badge pour choisir un thème :");
-  Serial.println("  - Badge Yasmina = Thème SANTÉ");
-  Serial.println("  - Badge Alex = Thème SPORT");
+
   
   randomSeed(analogRead(A0));
   
@@ -120,7 +118,6 @@ void lireBadge() {
   uid.toUpperCase();
   
   Serial.print("Badge détecté : ");
-  Serial.println(uid);
   
   choisirTheme(uid.c_str());
   
@@ -137,12 +134,12 @@ void choisirTheme(const char* uid) {
     nbPhrases = nbSante;
   }
   else if (strcmp(uid, UID_ALEX) == 0) {
-    Serial.println("⚽ Salut Alex ! Thème : SPORT");
+    Serial.println("⚽ Salut Joris ! Thème : SPORT");
     themeActuel = sportList;
     nbPhrases = nbSport;
   }
   else {
-    Serial.println("Badge non reconnu pour l'assistant.");
+    Serial.println("Badge non reconnu");
     return;
   }
   
@@ -169,7 +166,6 @@ void direPhrase(const char* const* theme, int count) {
   int index = phrasesOrdre[phrasesAffichees];  // Utiliser l'ordre mélangé
   char buffer[50];
   strcpy_P(buffer, (char*)pgm_read_word(&(theme[index])));
-  Serial.print("Assistant : ");
   Serial.println(buffer);
 }
 

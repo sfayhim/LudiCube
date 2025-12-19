@@ -50,12 +50,8 @@ void setup() {
   pinMode(BUTTON_2_PIN, INPUT_PULLUP);
 
   Serial.println();
-  Serial.println("=================================");
-  Serial.println("===   LudiCube - Démarrage    ===");
-  Serial.println("=================================");
-
+  Serial.println("Bienvenu sur LudiCube");
   ADKeybegin();
-  Serial.println("Boutons initialisés");
 
   displayMenu();
   gameInitialized = true;
@@ -80,8 +76,8 @@ void loop() {
 
       Serial.println();
       Serial.println("=================================");
-      Serial.print("=== CUBE ");
-      Serial.print(systemeAllume ? "ALLUME" : "ETEINT");
+      Serial.print("=== Le CUBE est ");
+      Serial.print(systemeAllume ? "ALLUMé" : "ETEINT");
       Serial.println(" ===");
       Serial.println("=================================");
 
@@ -109,7 +105,7 @@ void loop() {
 
     // Assistant (appui court pin 8)
     if (etatBouton == LOW && (millis() - tempsDebutAppui) < TEMPS_APPUI_LONG) {
-      Serial.println("\n>>> SELECTION: Assistant <<<");
+      Serial.println("\nAssistant lancé...");
       currentGame = GAME_ASSISTANT;
       Assistant::begin();
       delay(500);
@@ -117,7 +113,7 @@ void loop() {
 
     // Mémoire (ADC)
     else if (key == 0) {
-      Serial.println("\n>>> SELECTION: Mémoire <<<");
+      Serial.println("\nJeu mémoire lancé...");
       currentGame = GAME_MEMOIRE;
       Memoire::begin();
       delay(500);
@@ -125,7 +121,7 @@ void loop() {
 
     // Corps Humain (bouton pin 3)
     else if (digitalRead(BUTTON_2_PIN) == LOW) {
-      Serial.println("\n>>> SELECTION: Corps Humain <<<");
+      Serial.println("\nJeu corps humain lancé...");
       currentGame = GAME_CORPS_HUMAIN;
       CorpsHumain::begin();
       delay(500);
@@ -140,7 +136,7 @@ void loop() {
     case GAME_MEMOIRE:
       Memoire::step();
       if (Memoire::isCompleted()) {
-        Serial.println("\n=== Jeu terminé ===");
+        Serial.println("\nBravo, jeu terminé");
         delay(2000);
         currentGame = MENU;
         displayMenu();
@@ -150,7 +146,7 @@ void loop() {
     case GAME_CORPS_HUMAIN:
       CorpsHumain::step();
       if (CorpsHumain::isCompleted()) {
-        Serial.println("\n=== Jeu terminé ===");
+        Serial.println("\nBravo, jeu terminé");
         delay(2000);
         currentGame = MENU;
         displayMenu();
@@ -160,7 +156,7 @@ void loop() {
     case GAME_ASSISTANT:
       Assistant::step();
       if (Assistant::isCompleted()) {
-        Serial.println("\n=== Retour au menu ===");
+        Serial.println("\nRetour au menu");
         delay(2000);
         currentGame = MENU;
         displayMenu();
@@ -174,14 +170,12 @@ void loop() {
 
 // ================= MENU =================
 void displayMenu() {
-  Serial.println("\n================================");
-  Serial.println("    MENU - Choisissez un jeu    ");
-  Serial.println("================================");
-  Serial.println("  Bouton pin 8  -> Assistant");
-  Serial.println("  ADC           -> Jeu Mémoire");
-  Serial.println("  Bouton pin 3  -> Corps Humain");
-  Serial.println("================================");
-  Serial.println("En attente...");
+  Serial.println("Quel jeu veu-tu ?");
+  Serial.println("Assistant");
+  Serial.println("Jeu Mémoire");
+  Serial.println("Corps Humain");
+
+  Serial.println("je attents...");
 }
 
 // ================= ADC =================

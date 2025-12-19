@@ -39,12 +39,12 @@ bool checkAnswer(int pressed) {
 
 if (pressed == targetOrgan) {
 
-Serial.println("MSG_CORRECT");
+Serial.println("Bien joué");
 return true; // Réponse correcte
 
 } else {
 
-Serial.println("MSG_ESSAYER_ENCORE");
+Serial.println("Essaie encore");
 return false; // Réponse incorrecte, essayer encore
 
 }
@@ -79,17 +79,17 @@ void checkBadge() {
   uidString.toUpperCase();
 
   Serial.print("Badge détecté : ");
-  Serial.println(uidString);
+  // Serial.println(uidString);
 
   // 🔹 Gestion des badges
   if (uidString == "ABB28950") {
-    Serial.println("MSG_BADGE_FACILE");
+    Serial.println("Mode facile Activé");
     isEasy = true;
     gameStarted = true;
     gameFinished = false;
   }
   else if (uidString == "043F0C5E") {
-    Serial.println("MSG_BADGE_DIFFICILE");
+    Serial.println("Mode difficile Activé");
     isEasy = false;
     gameStarted = true;
     gameFinished = false;
@@ -109,7 +109,7 @@ void begin() {
 // Serial already initialized in main.cpp
 SPI.begin();
 mfrc522.PCD_Init();
-Serial.println("Lecteur RFID prêt !");
+Serial.println("Lecteur prêt !");
 Serial.println("Approche un badge pour choisir le mode (ou le jeu démarre en mode facile)...");
 
 pinMode(BUTTON_1_PIN, INPUT_PULLUP);
@@ -144,11 +144,11 @@ static bool modeShown = false;
 static bool lastModeEasy = true;
 
 if (!modeShown || lastModeEasy != isEasy) {
-  Serial.println("MSG_DEBUT");
   if (isEasy) {
-    Serial.println("MODE_FACILE");
+    Serial.println("MODE FACILE ACTIVé");
+    Serial.println("Appuie sur un bouton pour voir l'organe correspondant.");
   } else {
-    Serial.println("MODE_DIFFICILE");
+    Serial.println("MODE DIFFICILE ACTIVé");
   }
   modeShown = true;
   lastModeEasy = isEasy;
@@ -167,10 +167,28 @@ buttonState3 = digitalRead(BUTTON_3_PIN);
 
 buttonState4 = digitalRead(BUTTON_4_PIN);
 
-if (buttonState1 == LOW) { Serial.println("Les Intestins"); delay(500); }
-if (buttonState2 == LOW) { Serial.println("Le Coeur"); delay(500); }
-if (buttonState3 == LOW) { Serial.println("Le Cerveau"); delay(500); }
-if (buttonState4 == LOW) { Serial.println("Les Poumons"); delay(500); }
+
+
+if (buttonState1 == LOW) {
+  Serial.println("Les intestins : ils aident à digérer la nourriture");
+  delay(500);
+}
+
+if (buttonState2 == LOW) {
+  Serial.println("Le coeur : il fait circuler le sang");
+  delay(500);
+}
+
+if (buttonState3 == LOW) {
+  Serial.println("Le cerveau : il commande le corps");
+  delay(500);
+}
+
+if (buttonState4 == LOW) {
+  Serial.println("Les poumons : ils servent à respirer");
+  delay(500);
+}
+
 
 delay(100);
 return;
@@ -193,7 +211,7 @@ targetOrgan = random(1, 5);
 } while (asked[targetOrgan - 1]);
 asked[targetOrgan - 1] = true;
 askedCount++;
-
+Serial.println("Quel organe correspond à : ");
 // send organ to find
 if (targetOrgan == 1) Serial.println("Les INTESTINS");
 if (targetOrgan == 2) Serial.println("Le Coeur");
@@ -226,95 +244,14 @@ while (!answered) {
   }
 }
 }
-Serial.println("MSG_FIN");
+Serial.println("Fin du jeu !");
 
 gameFinished = true; // Marquer le jeu comme terminé, permettre un nouveau badge
 
 }
 
-
-
-// #include <Arduino.h>
-
-// // Nouvelle séquence : A1, A2, A3, A4, 6, 7, A5
-// int leds[] = {A1, A2, A3, A4, 6, A5, 7};
-// int count = sizeof(leds) / sizeof(leds[0]);
-
-// void setup() {
-//     for (int i = 0; i < count; i++) {
-//         pinMode(leds[i], OUTPUT);
-//         digitalWrite(leds[i], LOW);
-//     }
-// }
-
-// void loop() {
-//     for (int i = 0; i < count; i++) {
-//         // sécurité : tout éteindre avant d’allumer
-//         for (int j = 0; j < count; j++) {
-//             digitalWrite(leds[j], LOW);
-//         }
-
-//         digitalWrite(leds[i], LOW);
-//         delay(300);
-//     }
-// }
-
-/*
-// ============================================
-// CODE DE TEST - NE PAS UTILISER
-// ============================================
-#include <SPI.h>
-#include <MFRC522.h>
-#define RESOLUTION 10
-#define MAXVALUE (1 << RESOLUTION)
-#define PRECISION 10
-#define ADPIN A0
-
-uint32_t ADKeyVal[10] = {0};
-uint32_t ADCKeyIn = 0;
-
-// Prototypes obligatoires pour PlatformIO
-void ADKeybegin();
-int8_t getKey();
-
-void setup() {
-  Serial.begin(115200);
-  ADKeybegin();
-}
-
-void loop() {
-  ADCKeyIn = analogRead(ADPIN);
-
-  int8_t key = getKey();
-  if (key != -1) {
-    // Si la touche 0 est l’index 0 → afficher 0, sinon afficher le numéro
-    Serial.print("Touche : ");
-    Serial.println(key);  
-  }
-
-  delay(150);
-}
-
-void ADKeybegin() {
-  float RESValue[10] = {0, 3, 6.2, 9.1, 15, 24, 33, 51, 100, 220};
-
-  for (uint8_t i = 0; i < 10; i++) {
-    ADKeyVal[i] = RESValue[i] / (RESValue[i] + 22) * MAXVALUE;
-  }
-}
-
-int8_t getKey() {
-  for (uint8_t i = 0; i < 10; i++) {
-    if (abs((int)ADCKeyIn - (int)ADKeyVal[i]) < PRECISION) {
-      return i;   // retourne 0..9
-    }
-  }
-  return -1;     
-}
-*/
-
 bool isCompleted() {
   return gameFinished;
 }
 
-} // namespace CorpsHumain
+} 
